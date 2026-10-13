@@ -26,8 +26,10 @@ model User {
   bio      String?
   isPublic Boolean @default(false) // perfil público desativado até o usuário optar
 
-  accounts Account[]
-  sessions Session[]
+  accounts  Account[]
+  sessions  Session[]
+  projects  Project[]
+  favorites Favorite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -63,4 +65,112 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Projetos
+// ---------------------------------------------------------------------------
+
+enum ProjectStatus {
+  IDEA
+  PLANNING
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ProjectVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+model Project {
+  id     String @id @default(cuid())
+  userId String
+
+  title            String
+  // Único em todo o sistema, pois a página do projeto é /projeto/[slug]
+  slug             String            @unique
+  shortDescription String?
+  description      String? // texto longo (Markdown)
+  status           ProjectStatus     @default(IDEA)
+  // Privado por padrão: nada é publicado sem o usuário escolher
+  visibility       ProjectVisibility @default(PRIVATE)
+  featured         Boolean           @default(false) // destaque no perfil público
+
+  repositoryUrl String?
+  demoUrl       String?
+  coverImageUrl String?
+
+  // Preenchidos quando o projeto é importado do GitHub
+  githubRepoId       BigInt?
+  githubRepoFullName String? // ex.: "usuario/repositorio"
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  technologies ProjectTechnology[]
+  images       ProjectImage[]
+  favorites    Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Impede importar o mesmo repositório duas vezes para o mesmo usuário
+  // (no Postgres, várias linhas com githubRepoId NULL não violam a regra)
+  @@unique([userId, githubRepoId])
+  @@index([userId, status])
+  @@index([visibility, updatedAt])
+}
+
+model Technology {
+  id    String  @id @default(cuid())
+  name  String  @unique // ex.: "Next.js"
+  slug  String  @unique // ex.: "nextjs"
+  color String? // cor da tag em hexadecimal, opcional
+
+  projects ProjectTechnology[]
+
+  createdAt DateTime @default(now())
+}
+
+model ProjectTechnology {
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, technologyId])
+  @@index([technologyId])
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  projectId String
+  url       String
+  alt       String?
+  position  Int     @default(0) // ordem na galeria
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId, position])
+}
+
+model Favorite {
+  userId    String
+  projectId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  // Um usuário favorita cada projeto no máximo uma vez
+  @@id([userId, projectId])
+  @@index([projectId])
 }

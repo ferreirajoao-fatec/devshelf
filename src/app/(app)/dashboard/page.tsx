@@ -9,10 +9,10 @@ import {
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_LABELS,
   PROJECT_STATUSES,
-  type ProjectStatus,
 } from "@/features/projects/status"
 import { requireUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
+import { getProjectStatusCounts } from "@/services/projects"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -22,10 +22,7 @@ export default async function DashboardPage() {
   const user = await requireUser()
   const firstName = (user.name ?? user.username ?? "").split(" ")[0]
 
-  // Os projetos chegam na Etapa 4; até lá os contadores ficam zerados.
-  const counts: Record<ProjectStatus, number> = Object.fromEntries(
-    PROJECT_STATUSES.map((status) => [status, 0])
-  ) as Record<ProjectStatus, number>
+  const counts = await getProjectStatusCounts(user.id)
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
 
   return (

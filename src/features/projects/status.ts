@@ -1,14 +1,9 @@
-// Status de um projeto. As chaves serão o enum ProjectStatus do Prisma na Etapa 4.
-export const PROJECT_STATUSES = [
-  "IDEA",
-  "PLANNING",
-  "IN_PROGRESS",
-  "PAUSED",
-  "COMPLETED",
-  "ARCHIVED",
-] as const
+import { ProjectStatus } from "@/generated/prisma/enums"
 
-export type ProjectStatus = (typeof PROJECT_STATUSES)[number]
+export { ProjectStatus }
+
+// Ordem de exibição dos status (segue o ciclo de vida de um projeto)
+export const PROJECT_STATUSES = Object.values(ProjectStatus)
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   IDEA: "Ideia",

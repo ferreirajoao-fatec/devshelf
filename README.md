@@ -6,11 +6,12 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 2: dashboard e layout do app**.
+🚧 Em desenvolvimento — **Etapa 3: modelagem de projetos**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
 - [x] Etapa 2 — Dashboard (layout, navegação, tema claro/escuro)
+- [x] Etapa 3 — Modelagem de projetos (schema, migration, seed de tecnologias)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -59,8 +60,22 @@ cp .env.example .env
 
 ```bash
 docker compose up -d   # sobe o PostgreSQL
-pnpm db:migrate         # aplica as migrations
+pnpm db:migrate         # aplica as migrations e gera o cliente Prisma
+pnpm db:seed            # cadastra as tecnologias iniciais (pode rodar mais de uma vez)
 ```
+
+### Modelo de dados
+
+| Model | Função |
+|---|---|
+| `User`, `Account`, `Session` | Usuário e sessões do Auth.js; `User` guarda também `username`, `bio` e `isPublic` |
+| `Project` | Projeto do usuário: status, visibilidade (privado por padrão), links, capa e dados do repositório importado |
+| `Technology` | Tecnologias compartilhadas entre todos os usuários (tags e filtros) |
+| `ProjectTechnology` | Relação N:N entre projetos e tecnologias |
+| `ProjectImage` | Galeria de imagens de um projeto, com ordem |
+| `Favorite` | Projetos favoritados por um usuário |
+
+O `slug` de projeto é único em todo o sistema, já que a página pública é `/projeto/[slug]`.
 
 ## Execução local
 
@@ -80,6 +95,7 @@ pnpm lint     # roda o ESLint
 pnpm db:migrate  # cria/aplica migrations (desenvolvimento)
 pnpm db:deploy   # aplica migrations pendentes (produção)
 pnpm db:studio   # abre o Prisma Studio
+pnpm db:seed     # popula dados iniciais (tecnologias)
 ```
 
 ## Estrutura geral
@@ -97,6 +113,8 @@ src/
   utils/
 prisma/
   schema.prisma
+  migrations/
+  seed.ts      # tecnologias iniciais
 ```
 
 ## Autenticação GitHub
