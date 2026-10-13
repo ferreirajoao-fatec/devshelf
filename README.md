@@ -6,7 +6,12 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 1: autenticação com GitHub**.
+🚧 Em desenvolvimento — **Etapa 2: dashboard e layout do app**.
+
+- [x] Etapa 0 — Ambiente
+- [x] Etapa 1 — Autenticação com GitHub
+- [x] Etapa 2 — Dashboard (layout, navegação, tema claro/escuro)
+- [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
 
@@ -82,6 +87,7 @@ pnpm db:studio   # abre o Prisma Studio
 ```
 src/
   app/         # rotas (App Router)
+    (app)/     # páginas privadas: exigem login e usam o header do app
   components/  # componentes de UI reutilizáveis
   features/    # lógica e componentes por funcionalidade
   lib/         # clients e configuração (prisma, auth, github)
@@ -106,6 +112,19 @@ Login exclusivo via GitHub OAuth, com sessões salvas no banco (Auth.js + Prisma
 Cada OAuth App aceita uma única callback URL; crie outro app para produção apontando para o domínio real.
 
 Rotas privadas (ex.: `/dashboard`) passam por uma checagem otimista no `src/proxy.ts` e por validação real da sessão no servidor via `requireUser()` (`src/lib/session.ts`).
+
+## Tema
+
+Claro, escuro ou do sistema, escolhido no header. A preferência fica no `localStorage`, e um script inline no `<head>` (`src/features/theme/theme.ts`) aplica a classe `.dark` antes da primeira pintura, evitando o flash de tema errado.
+
+## Componentes shadcn/ui
+
+O estilo `base-nova` (Base UI) gera componentes importando o helper do pacote `cn`. Depois de `pnpm shadcn add <componente>`, troque o import para `@/lib/utils` e remova o pacote `cn` caso ele seja reinstalado:
+
+```bash
+sed -i 's|import { cn } from "cn"|import { cn } from "@/lib/utils"|' src/components/ui/*.tsx
+pnpm remove cn
+```
 
 ## Deploy
 
