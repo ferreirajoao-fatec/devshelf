@@ -1,0 +1,83 @@
+"use client"
+
+import { LogOut, Settings, UserRound } from "lucide-react"
+import { useTransition } from "react"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { signOutAction } from "@/features/auth/actions"
+
+type UserMenuProps = {
+  name?: string | null
+  username: string | null
+  image?: string | null
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("")
+}
+
+export function UserMenu({ name, username, image }: UserMenuProps) {
+  const [isPending, startTransition] = useTransition()
+  const displayName = name ?? username ?? "Usuário"
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon" className="rounded-full" aria-label="Menu do usuário" />
+        }
+      >
+        <Avatar>
+          {image && <AvatarImage src={image} alt="" />}
+          <AvatarFallback>{initials(displayName)}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex flex-col">
+            <span className="truncate font-medium text-foreground">{displayName}</span>
+            {username && <span className="truncate text-xs font-normal">@{username}</span>}
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem disabled>
+            <UserRound />
+            Perfil público
+            <Badge variant="outline" className="ml-auto text-[10px]">
+              Em breve
+            </Badge>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            <Settings />
+            Configurações
+            <Badge variant="outline" className="ml-auto text-[10px]">
+              Em breve
+            </Badge>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem disabled={isPending} onClick={() => startTransition(() => signOutAction())}>
+          <LogOut />
+          {isPending ? "Saindo..." : "Sair"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
