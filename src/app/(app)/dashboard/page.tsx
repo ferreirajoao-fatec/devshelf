@@ -1,9 +1,10 @@
 import { FolderPlus, Plus } from "lucide-react"
 import type { Metadata } from "next"
+import Link from "next/link"
 
 import { GitHubIcon } from "@/components/icons/github-icon"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   PROJECT_STATUS_COLORS,
@@ -32,10 +33,10 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Olá, {firstName}!</h1>
           <p className="text-muted-foreground">Este é o resumo da sua estante de projetos.</p>
         </div>
-        <Button disabled>
+        <Link href="/projetos/novo" className={buttonVariants()}>
           <Plus />
           Novo projeto
-        </Button>
+        </Link>
       </div>
 
       <section aria-labelledby="stats-title" className="space-y-3">
@@ -44,18 +45,24 @@ export default async function DashboardPage() {
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {PROJECT_STATUSES.map((status) => (
-            <Card key={status} size="sm">
-              <CardHeader>
-                <CardDescription className="flex items-center gap-2">
-                  <span
-                    aria-hidden="true"
-                    className={cn("size-2 rounded-full", PROJECT_STATUS_COLORS[status])}
-                  />
-                  {PROJECT_STATUS_LABELS[status]}
-                </CardDescription>
-                <CardTitle className="text-2xl tabular-nums">{counts[status]}</CardTitle>
-              </CardHeader>
-            </Card>
+            <Link
+              key={status}
+              href={`/projetos?status=${status}`}
+              className="rounded-xl outline-none transition-shadow hover:ring-2 hover:ring-ring/30 focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <Card size="sm">
+                <CardHeader>
+                  <CardDescription className="flex items-center gap-2">
+                    <span
+                      aria-hidden="true"
+                      className={cn("size-2 rounded-full", PROJECT_STATUS_COLORS[status])}
+                    />
+                    {PROJECT_STATUS_LABELS[status]}
+                  </CardDescription>
+                  <CardTitle className="text-2xl tabular-nums">{counts[status]}</CardTitle>
+                </CardHeader>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
@@ -74,16 +81,16 @@ export default async function DashboardPage() {
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button disabled>
+              <Link href="/projetos/novo" className={buttonVariants()}>
                 <Plus />
                 Novo projeto
-              </Button>
+              </Link>
               <Button variant="outline" disabled>
                 <GitHubIcon />
                 Importar do GitHub
               </Button>
             </div>
-            <Badge variant="secondary">Cadastro e importação chegam nas próximas etapas</Badge>
+            <Badge variant="secondary">Importação do GitHub chega em uma próxima etapa</Badge>
           </CardContent>
         </Card>
       )}
