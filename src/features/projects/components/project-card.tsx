@@ -35,7 +35,7 @@ export function ProjectCard({ project }: { project: UserProject }) {
           )}
         </div>
         <CardTitle className="pt-1 text-base">
-          <Link href={`/projetos/${project.id}/editar`} className="hover:underline">
+          <Link href={`/projeto/${project.slug}`} className="hover:underline">
             {project.title}
           </Link>
         </CardTitle>

@@ -9,7 +9,17 @@ export function formatDate(date: Date) {
   return dateFormatter.format(date)
 }
 
-// Datas sem horário (início/conclusão) são salvas como meia-noite UTC.
+const dateOnlyFormatter = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+})
+
+// Datas sem horário (início/conclusão) são salvas como meia-noite UTC;
+// formatar em UTC evita que "15/03" vire "14/03" no fuso do Brasil.
+export function formatDateOnly(date: Date) {
+  return dateOnlyFormatter.format(date)
+}
+
 export function toDateInputValue(date: Date | null | undefined) {
   return date ? date.toISOString().slice(0, 10) : ""
 }
