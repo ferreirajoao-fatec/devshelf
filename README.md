@@ -6,13 +6,14 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 4: CRUD de projetos**.
+🚧 Em desenvolvimento — **Etapa 5: página do projeto**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
 - [x] Etapa 2 — Dashboard (layout, navegação, tema claro/escuro)
 - [x] Etapa 3 — Modelagem de projetos (schema, migration, seed de tecnologias)
 - [x] Etapa 4 — CRUD de projetos (Meus Projetos, criar, editar, excluir)
+- [x] Etapa 5 — Página do projeto (`/projeto/[slug]`, Markdown, Open Graph)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -105,6 +106,7 @@ pnpm db:seed     # popula dados iniciais (tecnologias)
 src/
   app/         # rotas (App Router)
     (app)/     # páginas privadas: exigem login e usam o header do app
+    (public)/  # páginas abertas a visitantes (ex.: /projeto/[slug])
   components/  # componentes de UI reutilizáveis
   features/    # lógica e componentes por funcionalidade
   lib/         # clients e configuração (prisma, auth, github)
@@ -140,6 +142,14 @@ Em **Meus Projetos** (`/projetos`) o usuário cadastra, edita, filtra por status
 - Todo acesso de leitura, edição e exclusão filtra pelo `userId` da sessão (`src/services/projects.ts`): projeto de outro usuário se comporta como inexistente (404).
 - O slug é gerado a partir do título (`meu-app`, `meu-app-2`...) e não muda na edição, para não quebrar links.
 - Projetos são criados como **privados**; o usuário escolhe quando torná-los públicos.
+
+### Página do projeto
+
+`/projeto/[slug]` mostra capa, status, links, descrição, autor, tecnologias e datas.
+
+- **Público:** aberto a qualquer pessoa, sem login. **Privado:** só o dono vê (com aviso); para os demais responde 404, e a página recebe `noindex`.
+- A descrição aceita Markdown (com tabelas e listas de tarefas via GFM). HTML bruto não é interpretado e links `javascript:` são removidos, então o conteúdo do usuário não executa scripts.
+- Título, descrição e capa alimentam os metadados de compartilhamento (Open Graph).
 
 ## Tema
 
