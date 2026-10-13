@@ -1,5 +1,7 @@
 import "server-only"
 
+import { cache } from "react"
+
 import type { ProjectFormData } from "@/features/projects/schema"
 import { nextAvailableSlug, slugify } from "@/features/projects/slug"
 import { PROJECT_STATUSES, type ProjectStatus } from "@/features/projects/status"
@@ -50,6 +52,23 @@ export async function getOwnedProject(projectId: string, userId: string) {
     include: technologiesInclude,
   })
 }
+
+// Projeto para a página pública /projeto/[slug].
+// Público: visível para todos. Privado: só para o dono (para os demais, null = 404).
+export const getViewableProjectBySlug = cache(async (slug: string, viewerId: string | null) => {
+  const project = await prisma.project.findUnique({
+    where: { slug },
+    include: {
+      ...technologiesInclude,
+      images: { orderBy: { position: "asc" } },
+      user: { select: { id: true, name: true, username: true, image: true, isPublic: true } },
+    },
+  })
+
+  if (!project) return null
+  if (project.visibility !== "PUBLIC" && project.userId !== viewerId) return null
+  return project
+})
 
 export async function listTechnologies() {
   return prisma.technology.findMany({
