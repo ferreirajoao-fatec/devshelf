@@ -6,12 +6,13 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 3: modelagem de projetos**.
+🚧 Em desenvolvimento — **Etapa 4: CRUD de projetos**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
 - [x] Etapa 2 — Dashboard (layout, navegação, tema claro/escuro)
 - [x] Etapa 3 — Modelagem de projetos (schema, migration, seed de tecnologias)
+- [x] Etapa 4 — CRUD de projetos (Meus Projetos, criar, editar, excluir)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -130,6 +131,15 @@ Login exclusivo via GitHub OAuth, com sessões salvas no banco (Auth.js + Prisma
 Cada OAuth App aceita uma única callback URL; crie outro app para produção apontando para o domínio real.
 
 Rotas privadas (ex.: `/dashboard`) passam por uma checagem otimista no `src/proxy.ts` e por validação real da sessão no servidor via `requireUser()` (`src/lib/session.ts`).
+
+## Projetos
+
+Em **Meus Projetos** (`/projetos`) o usuário cadastra, edita, filtra por status e exclui seus projetos.
+
+- Validação com Zod (`src/features/projects/schema.ts`), compartilhada entre cliente e servidor; as server actions revalidam tudo no servidor.
+- Todo acesso de leitura, edição e exclusão filtra pelo `userId` da sessão (`src/services/projects.ts`): projeto de outro usuário se comporta como inexistente (404).
+- O slug é gerado a partir do título (`meu-app`, `meu-app-2`...) e não muda na edição, para não quebrar links.
+- Projetos são criados como **privados**; o usuário escolhe quando torná-los públicos.
 
 ## Tema
 
