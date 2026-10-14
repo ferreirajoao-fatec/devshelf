@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 9: favoritos**.
+🚧 Em desenvolvimento — **Etapa 10: configurações**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -18,6 +18,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 7 — Perfil público (`/u/[username]`)
 - [x] Etapa 8 — Explorar (`/explorar`, busca e filtros)
 - [x] Etapa 9 — Favoritos (`/favoritos`)
+- [x] Etapa 10 — Configurações (`/configuracoes`)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -171,7 +172,7 @@ Em `/projetos/importar` o usuário vê seus repositórios **públicos** (até 30
 
 `/u/[username]` mostra avatar, nome, bio, link do GitHub e os projetos **públicos** do usuário (destaques primeiro).
 
-- O perfil vem **desativado**. O usuário ativa e edita a bio no card "Perfil público" do dashboard (`/dashboard#perfil`).
+- O perfil vem **desativado**. O usuário ativa e edita nome, username e bio em **Configurações** (`/configuracoes`); o dashboard mostra um resumo com o status e o link.
 - Perfil desativado responde 404 para visitantes e recebe `noindex`; o dono continua vendo a página, com um aviso.
 - Projetos privados nunca aparecem no perfil, nem para o dono: a página mostra exatamente o que os visitantes veem.
 - O `username` vem do login do GitHub e é guardado em minúsculas; o endereço não diferencia maiúsculas.
@@ -194,6 +195,18 @@ Usuários logados guardam projetos de outras pessoas com a estrela, na página d
 - A estrela responde na hora (atualização otimista) e volta ao estado anterior se o servidor recusar.
 - A página do projeto mostra quantas pessoas o favoritaram. Visitantes veem "Favoritar", que leva ao login e volta para o projeto.
 - Se um projeto favoritado ficar privado, ele some da lista; desfavoritar continua permitido.
+
+## Configurações
+
+`/configuracoes` (menu do avatar → Configurações) reúne:
+
+- **Perfil:** nome de exibição (vazio = usa o username), username, bio e perfil público.
+- **Aparência:** tema claro, escuro ou do sistema, salvo no navegador (o mesmo do botão de tema do header).
+
+Sobre o username:
+
+- Começa igual ao login do GitHub e pode ser trocado: letras, números e hífens, até 39 caracteres, sempre em minúsculas. Trocar muda o endereço do perfil, e links antigos deixam de funcionar.
+- É único. Se alguém já adotou o login do GitHub de uma pessoa nova, ela entra com uma variação livre (`login-2`...) em vez de o cadastro falhar (`createUser` em `src/lib/auth.ts`).
 
 ## Tema
 
