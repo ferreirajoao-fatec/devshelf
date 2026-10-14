@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 11: refinamentos**.
+🚧 Em desenvolvimento — **Etapa 12: testes**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -20,6 +20,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 9 — Favoritos (`/favoritos`)
 - [x] Etapa 10 — Configurações (`/configuracoes`)
 - [x] Etapa 11 — Refinamentos (404, erros, carregamento, acessibilidade)
+- [x] Etapa 12 — Testes (Vitest + CI no GitHub Actions)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -100,6 +101,11 @@ pnpm dev      # inicia o servidor de desenvolvimento
 pnpm build    # build de produção
 pnpm start    # inicia o build de produção
 pnpm lint     # roda o ESLint
+pnpm typecheck         # gera os tipos de rota do Next e roda o TypeScript
+pnpm test              # todos os testes (unitários + integração)
+pnpm test:unit         # só os testes unitários (não precisam de banco)
+pnpm test:integration  # testes dos serviços contra o banco devshelf_test
+pnpm test:watch        # testes unitários em modo observação
 pnpm db:migrate  # cria/aplica migrations (desenvolvimento)
 pnpm db:deploy   # aplica migrations pendentes (produção)
 pnpm db:studio   # abre o Prisma Studio
@@ -216,6 +222,26 @@ Sobre o username:
 - **Carregamento** (`loading.tsx`): esqueleto nas páginas privadas e no Explorar. As páginas `/projeto/[slug]` e `/u/[username]` ficam sem esqueleto de propósito: com streaming o Next já enviaria `200` antes do `notFound()`, e elas deixariam de responder `404`.
 - **Capa indisponível:** se a URL da imagem falhar, o quadro mostra um aviso em vez do ícone de imagem quebrada.
 - **Acessibilidade:** link "Pular para o conteúdo" no primeiro Tab e conteúdo dentro de `<main id="conteudo">`.
+
+## Testes
+
+Testes com [Vitest](https://vitest.dev), em dois projetos (`vitest.config.ts`):
+
+| Projeto | Arquivos | O que cobre |
+|---|---|---|
+| `unit` | `src/**/*.test.ts` | Validações Zod, slug, redirecionamento seguro, mapeamento do GitHub, filtros do Explorar |
+| `integration` | `src/**/*.int.test.ts` | Serviços contra um Postgres real: posse e visibilidade de projetos, favoritos, perfis e username, busca do Explorar |
+
+Os testes de integração usam o banco **`devshelf_test`** no mesmo Postgres do `docker compose` (crie/atualize com `pnpm test:integration`, que aplica as migrations antes de rodar). Cada teste começa com as tabelas vazias. Por segurança, eles se recusam a rodar se o nome do banco não terminar em `_test`; para outro banco, use `TEST_DATABASE_URL`.
+
+```bash
+docker compose up -d
+pnpm test
+```
+
+### CI
+
+`.github/workflows/ci.yml` roda em todo PR e nos pushes para `develop` e `main`: lint, tipos, testes unitários, testes de integração (com Postgres como serviço) e build.
 
 ## Tema
 
