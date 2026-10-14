@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 5: página do projeto**.
+🚧 Em desenvolvimento — **Etapa 6: importação do GitHub**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -14,6 +14,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 3 — Modelagem de projetos (schema, migration, seed de tecnologias)
 - [x] Etapa 4 — CRUD de projetos (Meus Projetos, criar, editar, excluir)
 - [x] Etapa 5 — Página do projeto (`/projeto/[slug]`, Markdown, Open Graph)
+- [x] Etapa 6 — Importação do GitHub (`/projetos/importar`)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -150,6 +151,17 @@ Em **Meus Projetos** (`/projetos`) o usuário cadastra, edita, filtra por status
 - **Público:** aberto a qualquer pessoa, sem login. **Privado:** só o dono vê (com aviso); para os demais responde 404, e a página recebe `noindex`.
 - A descrição aceita Markdown (com tabelas e listas de tarefas via GFM). HTML bruto não é interpretado e links `javascript:` são removidos, então o conteúdo do usuário não executa scripts.
 - Título, descrição e capa alimentam os metadados de compartilhamento (Open Graph).
+
+### Importação do GitHub
+
+Em `/projetos/importar` o usuário vê seus repositórios **públicos** (até 300, do push mais recente ao mais antigo), busca por nome e escolhe um para importar.
+
+- O formulário vem preenchido com nome, descrição, link do repositório, homepage (como demo), data de criação (como início) e tecnologias reconhecidas a partir das linguagens e topics do repositório. Repositório arquivado vira status "Arquivado"; os demais, "Em desenvolvimento".
+- **Nada é salvo antes da confirmação**, e o projeto importado sempre começa **privado**.
+- A chamada à API usa o token OAuth do login, lido apenas no servidor (`src/lib/github.ts`). Os escopos `read:user` e `user:email` não dão acesso a repositórios privados, e nenhuma permissão extra é pedida.
+- Ao salvar, o repositório é lido de novo no GitHub para confirmar que é público e do próprio usuário; os dados de origem (`githubRepoId`, `githubRepoFullName`) nunca vêm do navegador.
+- Cada repositório só pode ser importado uma vez por usuário; os já importados aparecem com link para a edição do projeto.
+- Se o token não for mais válido (ex.: acesso revogado no GitHub), a página pede para sair e entrar de novo.
 
 ## Tema
 

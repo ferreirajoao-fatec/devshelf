@@ -26,6 +26,7 @@ type ProjectFormProps = {
   defaultValues: ProjectFormInput
   technologies: { id: string; name: string; color: string | null }[]
   submitLabel: string
+  cancelHref?: string
 }
 
 function FieldError({ id, errors }: { id: string; errors?: string[] }) {
@@ -37,7 +38,13 @@ function FieldError({ id, errors }: { id: string; errors?: string[] }) {
   )
 }
 
-export function ProjectForm({ action, defaultValues, technologies, submitLabel }: ProjectFormProps) {
+export function ProjectForm({
+  action,
+  defaultValues,
+  technologies,
+  submitLabel,
+  cancelHref = "/projetos",
+}: ProjectFormProps) {
   const [state, formAction, pending] = useActionState(action, {})
   const values = state.values ?? defaultValues
   const errors = state.fieldErrors ?? {}
@@ -231,7 +238,7 @@ export function ProjectForm({ action, defaultValues, technologies, submitLabel }
       </Card>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Link href="/projetos" className={buttonVariants({ variant: "outline" })}>
+        <Link href={cancelHref} className={buttonVariants({ variant: "outline" })}>
           Cancelar
         </Link>
         <Button type="submit" disabled={pending}>
