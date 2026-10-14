@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProjectCard } from "@/features/projects/components/project-card"
 import { getCurrentUser } from "@/lib/session"
+import { getFavoritedProjectIds } from "@/services/favorites"
 import { getViewableProfile } from "@/services/profiles"
 import { listPublicProjectsOfUser } from "@/services/projects"
 import { formatDate } from "@/utils/format"
@@ -16,7 +17,7 @@ import { formatDate } from "@/utils/format"
 async function loadProfile(username: string) {
   const viewer = await getCurrentUser()
   const profile = await getViewableProfile(username, viewer?.id ?? null)
-  return { profile, isOwner: Boolean(profile && viewer?.id === profile.id) }
+  return { profile, viewer, isOwner: Boolean(profile && viewer?.id === profile.id) }
 }
 
 export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
@@ -43,12 +44,15 @@ export async function generateMetadata({ params }: PageProps<"/u/[username]">): 
 
 export default async function ProfilePage({ params }: PageProps<"/u/[username]">) {
   const { username } = await params
-  const { profile, isOwner } = await loadProfile(username)
+  const { profile, viewer, isOwner } = await loadProfile(username)
   // Inexistente ou desativado (para quem não é o dono): 404 nos dois casos
   if (!profile) notFound()
 
   // Mesmo para o dono, só projetos públicos: a página mostra o que os visitantes veem
   const projects = await listPublicProjectsOfUser(profile.id)
+  // Botão de favoritar só para visitantes logados (ninguém favorita o próprio projeto)
+  const favoritedIds =
+    viewer && !isOwner ? await getFavoritedProjectIds(viewer.id, projects.map((p) => p.id)) : null
   const name = profile.name ?? profile.username ?? "Usuário"
 
   return (
@@ -103,7 +107,11 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
               <li key={project.id}>
-                <ProjectCard project={project} variant="public" />
+                <ProjectCard
+                  project={project}
+                  variant="public"
+                  favorite={favoritedIds ? { favorited: favoritedIds.has(project.id) } : undefined}
+                />
               </li>
             ))}
           </ul>

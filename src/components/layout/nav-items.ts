@@ -1,4 +1,4 @@
-import { Compass, FolderKanban, LayoutDashboard, type LucideIcon } from "lucide-react"
+import { Compass, FolderKanban, LayoutDashboard, Star, type LucideIcon } from "lucide-react"
 
 export type NavItem = {
   href: string
@@ -12,6 +12,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projetos", label: "Meus Projetos", icon: FolderKanban },
   { href: "/explorar", label: "Explorar", icon: Compass },
+  { href: "/favoritos", label: "Favoritos", icon: Star },
 ]
 
 export function isActivePath(pathname: string, href: string) {

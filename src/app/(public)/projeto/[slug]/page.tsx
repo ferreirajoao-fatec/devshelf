@@ -10,15 +10,18 @@ import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CoverImage } from "@/features/projects/components/cover-image"
+import { FavoriteButton } from "@/features/favorites/components/favorite-button"
 import { StatusBadge } from "@/features/projects/components/status-badge"
 import { getCurrentUser } from "@/lib/session"
+import { cn } from "@/lib/utils"
+import { getProjectFavoriteState } from "@/services/favorites"
 import { getViewableProjectBySlug } from "@/services/projects"
 import { formatDate, formatDateOnly } from "@/utils/format"
 
 async function loadProject(slug: string) {
   const viewer = await getCurrentUser()
   const project = await getViewableProjectBySlug(slug, viewer?.id ?? null)
-  return { project, isOwner: Boolean(project && viewer?.id === project.userId) }
+  return { project, viewer, isOwner: Boolean(project && viewer?.id === project.userId) }
 }
 
 export async function generateMetadata({ params }: PageProps<"/projeto/[slug]">): Promise<Metadata> {
@@ -45,9 +48,12 @@ export async function generateMetadata({ params }: PageProps<"/projeto/[slug]">)
 
 export default async function ProjectPage({ params }: PageProps<"/projeto/[slug]">) {
   const { slug } = await params
-  const { project, isOwner } = await loadProject(slug)
+  const { project, viewer, isOwner } = await loadProject(slug)
   // Inexistente ou privado de outra pessoa: 404 nos dois casos
   if (!project) notFound()
+
+  const isPublic = project.visibility === "PUBLIC"
+  const favorites = isPublic ? await getProjectFavoriteState(project.id, viewer?.id ?? null) : null
 
   const technologies = project.technologies.map((t) => t.technology)
   const author = project.user
@@ -55,7 +61,7 @@ export default async function ProjectPage({ params }: PageProps<"/projeto/[slug]
 
   return (
     <article className="mx-auto w-full max-w-5xl space-y-8">
-      {project.visibility !== "PUBLIC" && (
+      {!isPublic && (
         <p className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
           <Lock className="size-4 shrink-0" />
           Projeto privado: só você vê esta página. Torne-o público na edição para compartilhar.
@@ -109,6 +115,33 @@ export default async function ProjectPage({ params }: PageProps<"/projeto/[slug]
               Ver demo
             </a>
           )}
+          {favorites &&
+            (viewer && !isOwner ? (
+              <FavoriteButton
+                projectId={project.id}
+                projectTitle={project.title}
+                initialFavorited={favorites.favorited}
+                initialCount={favorites.count}
+              />
+            ) : isOwner ? (
+              // Dono não favorita o próprio projeto, só vê a contagem
+              <span className={cn(buttonVariants({ variant: "outline" }), "pointer-events-none")}>
+                <Star />
+                Favoritos
+                <span className="text-muted-foreground tabular-nums">{favorites.count}</span>
+              </span>
+            ) : (
+              // Visitante: leva ao login e volta para cá
+              <Link
+                href={`/login?callbackUrl=${encodeURIComponent(`/projeto/${project.slug}`)}`}
+                className={buttonVariants({ variant: "outline" })}
+                title="Entre para favoritar"
+              >
+                <Star />
+                Favoritar
+                <span className="text-muted-foreground tabular-nums">{favorites.count}</span>
+              </Link>
+            ))}
           {isOwner && (
             <Link href={`/projetos/${project.id}/editar`} className={buttonVariants()}>
               <Pencil />
