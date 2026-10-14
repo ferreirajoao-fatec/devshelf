@@ -1,7 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Schema do DevShelf
+// Docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +8,173 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Autenticação (formato exigido pelo @auth/prisma-adapter) + perfil do DevShelf
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  // Campos do DevShelf
+  username String? @unique // usado no perfil público (/u/username); vem do login do GitHub
+  bio      String?
+  isPublic Boolean @default(false) // perfil público desativado até o usuário optar
+
+  accounts  Account[]
+  sessions  Session[]
+  projects  Project[]
+  favorites Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @id
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Projetos
+// ---------------------------------------------------------------------------
+
+enum ProjectStatus {
+  IDEA
+  PLANNING
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ProjectVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+model Project {
+  id     String @id @default(cuid())
+  userId String
+
+  title            String
+  // Único em todo o sistema, pois a página do projeto é /projeto/[slug]
+  slug             String            @unique
+  shortDescription String?
+  description      String? // texto longo (Markdown)
+  status           ProjectStatus     @default(IDEA)
+  // Privado por padrão: nada é publicado sem o usuário escolher
+  visibility       ProjectVisibility @default(PRIVATE)
+  featured         Boolean           @default(false) // destaque no perfil público
+
+  repositoryUrl String?
+  demoUrl       String?
+  coverImageUrl String?
+  // Enquadramento da capa no quadro 16:9: ponto focal em % (0–100) e zoom (1 = preenche o quadro)
+  coverPositionX Float @default(50)
+  coverPositionY Float @default(50)
+  coverZoom      Float @default(1)
+
+  // Preenchidos quando o projeto é importado do GitHub
+  githubRepoId       BigInt?
+  githubRepoFullName String? // ex.: "usuario/repositorio"
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  technologies ProjectTechnology[]
+  images       ProjectImage[]
+  favorites    Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Impede importar o mesmo repositório duas vezes para o mesmo usuário
+  // (no Postgres, várias linhas com githubRepoId NULL não violam a regra)
+  @@unique([userId, githubRepoId])
+  @@index([userId, status])
+  @@index([visibility, updatedAt])
+}
+
+model Technology {
+  id    String  @id @default(cuid())
+  name  String  @unique // ex.: "Next.js"
+  slug  String  @unique // ex.: "nextjs"
+  color String? // cor da tag em hexadecimal, opcional
+
+  projects ProjectTechnology[]
+
+  createdAt DateTime @default(now())
+}
+
+model ProjectTechnology {
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, technologyId])
+  @@index([technologyId])
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  projectId String
+  url       String
+  alt       String?
+  position  Int     @default(0) // ordem na galeria
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId, position])
+}
+
+model Favorite {
+  userId    String
+  projectId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  // Um usuário favorita cada projeto no máximo uma vez
+  @@id([userId, projectId])
+  @@index([projectId])
 }
