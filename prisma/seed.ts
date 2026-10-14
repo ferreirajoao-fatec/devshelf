@@ -3,10 +3,11 @@ import "dotenv/config"
 import { PrismaPg } from "@prisma/adapter-pg"
 
 import { PrismaClient } from "../src/generated/prisma/client"
+import { migrationDatabaseUrl } from "../src/lib/database-url"
 
 // Cliente próprio: src/lib/prisma.ts importa "server-only" e só roda dentro do Next.
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  adapter: new PrismaPg({ connectionString: migrationDatabaseUrl() }),
 })
 
 // Tecnologias iniciais (nome, slug, cor da marca). Usuários poderão criar outras.

@@ -3,6 +3,8 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+import { migrationDatabaseUrl } from "./src/lib/database-url";
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -10,6 +12,7 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Local: DATABASE_URL. Vercel + Supabase: conexão direta (ver src/lib/database-url.ts)
+    url: migrationDatabaseUrl(),
   },
 });
