@@ -14,7 +14,7 @@ import { POST } from "./route"
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0])
 
-function request(content: Uint8Array | string, type = "image/png") {
+function request(content: Uint8Array<ArrayBuffer> | string, type = "image/png") {
   const body = new FormData()
   body.set("file", new File([content], "capa.png", { type }))
   return new Request("http://localhost/api/uploads/cover", { method: "POST", body })
