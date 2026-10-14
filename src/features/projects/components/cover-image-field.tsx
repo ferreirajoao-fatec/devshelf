@@ -1,7 +1,7 @@
 "use client"
 
 import { ImageOff, Move, RotateCcw, ZoomIn } from "lucide-react"
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
+import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,6 +30,13 @@ export function CoverImageField({ defaultUrl, defaultCrop, invalid, errorId }: C
   const [failed, setFailed] = useState(false)
   const frameRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ pointerX: number; pointerY: number; crop: CoverCrop } | null>(null)
+
+  // Guarda o tamanho original da imagem; ignora atualizações iguais para não re-renderizar à toa.
+  const measure = useCallback((img: HTMLImageElement | null) => {
+    if (!img?.complete || !img.naturalWidth) return
+    const { naturalWidth: width, naturalHeight: height } = img
+    setNatural((prev) => (prev?.width === width && prev.height === height ? prev : { width, height }))
+  }, [])
 
   const previewUrl = /^https?:\/\/\S+$/i.test(url.trim()) ? url.trim() : ""
 
@@ -142,14 +149,10 @@ export function CoverImageField({ defaultUrl, defaultCrop, invalid, errorId }: C
                 crop={crop}
                 imgProps={{
                   draggable: false,
-                  // Imagem em cache pode terminar de carregar antes da hidratação, sem disparar onLoad
-                  ref: (img) => {
-                    if (img?.complete && img.naturalWidth) {
-                      setNatural({ width: img.naturalWidth, height: img.naturalHeight })
-                    }
-                  },
-                  onLoad: (e) =>
-                    setNatural({ width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight }),
+                  // Imagem em cache pode terminar de carregar antes da hidratação, sem disparar onLoad;
+                  // por isso medimos também no ref (callback estável, chamada só ao montar).
+                  ref: measure,
+                  onLoad: (e) => measure(e.currentTarget),
                   onError: () => setFailed(true),
                 }}
               />
