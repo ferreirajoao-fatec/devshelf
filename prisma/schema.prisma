@@ -102,6 +102,10 @@ model Project {
   repositoryUrl String?
   demoUrl       String?
   coverImageUrl String?
+  // Enquadramento da capa no quadro 16:9: ponto focal em % (0–100) e zoom (1 = preenche o quadro)
+  coverPositionX Float @default(50)
+  coverPositionY Float @default(50)
+  coverZoom      Float @default(1)
 
   // Preenchidos quando o projeto é importado do GitHub
   githubRepoId       BigInt?
