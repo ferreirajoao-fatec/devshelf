@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useTransition } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -65,13 +64,10 @@ export function UserMenu({ name, username, image }: UserMenuProps) {
               Perfil público
             </DropdownMenuLinkItem>
           )}
-          <DropdownMenuItem disabled>
+          <DropdownMenuLinkItem render={<Link href="/configuracoes" />}>
             <Settings />
             Configurações
-            <Badge variant="outline" className="ml-auto text-[10px]">
-              Em breve
-            </Badge>
-          </DropdownMenuItem>
+          </DropdownMenuLinkItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem disabled={isPending} onClick={() => startTransition(() => signOutAction())}>

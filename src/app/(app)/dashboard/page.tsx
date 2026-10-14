@@ -1,11 +1,11 @@
-import { FolderPlus, Plus } from "lucide-react"
+import { ExternalLink, FolderPlus, Globe, Lock, Plus, Settings } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
 import { GitHubIcon } from "@/components/icons/github-icon"
+import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ProfileSettingsCard } from "@/features/profile/components/profile-settings-card"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_LABELS,
@@ -69,13 +69,40 @@ export default async function DashboardPage() {
       </section>
 
       {profile?.username && (
-        <section id="perfil" className="scroll-mt-20">
-          <ProfileSettingsCard
-            username={profile.username}
-            defaultBio={profile.bio ?? ""}
-            defaultIsPublic={profile.isPublic}
-          />
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Perfil público</CardTitle>
+            <CardDescription>
+              {profile.isPublic ? (
+                <>
+                  Ativo em{" "}
+                  <Link href={`/u/${profile.username}`} className="font-medium text-foreground hover:underline">
+                    /u/{profile.username}
+                  </Link>
+                  , com seus projetos públicos.
+                </>
+              ) : (
+                "Desativado: só você vê sua página de perfil."
+              )}
+            </CardDescription>
+            <CardAction>
+              <Badge variant="secondary" className="gap-1">
+                {profile.isPublic ? <Globe /> : <Lock />}
+                {profile.isPublic ? "Ativo" : "Desativado"}
+              </Badge>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 sm:flex-row">
+            <Link href={`/u/${profile.username}`} className={buttonVariants({ variant: "outline" })}>
+              <ExternalLink />
+              Ver perfil
+            </Link>
+            <Link href="/configuracoes#perfil" className={buttonVariants({ variant: "outline" })}>
+              <Settings />
+              {profile.isPublic ? "Editar perfil" : "Ativar nas configurações"}
+            </Link>
+          </CardContent>
+        </Card>
       )}
 
       {total === 0 && (

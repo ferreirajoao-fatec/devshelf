@@ -14,7 +14,7 @@ import {
 import type { Theme } from "./theme"
 import { useTheme } from "./use-theme"
 
-const OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
+export const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Claro", icon: Sun },
   { value: "dark", label: "Escuro", icon: Moon },
   { value: "system", label: "Sistema", icon: Monitor },
@@ -32,7 +32,7 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
         <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as Theme)}>
-          {OPTIONS.map(({ value, label, icon: Icon }) => (
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
             <DropdownMenuRadioItem key={value} value={value}>
               <Icon />
               {label}

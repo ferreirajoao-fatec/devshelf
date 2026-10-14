@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { requireUser } from "@/lib/session"
-import { updateProfile } from "@/services/profiles"
+import { updateProfile, UsernameTakenError } from "@/services/profiles"
 
 import { profileFormDataToInput, profileFormSchema, type ProfileFormInput } from "./schema"
 
@@ -31,9 +31,18 @@ export async function updateProfileAction(
     }
   }
 
-  const { username } = await updateProfile(user.id, parsed.data)
+  try {
+    await updateProfile(user.id, parsed.data)
+  } catch (error) {
+    if (!(error instanceof UsernameTakenError)) throw error
+    return {
+      message: "Corrija os campos destacados.",
+      fieldErrors: { username: ["Este username já está em uso"] },
+      values: input,
+    }
+  }
 
-  revalidatePath("/dashboard")
-  if (username) revalidatePath(`/u/${username}`)
-  return { success: true, message: "Perfil atualizado.", values: input }
+  // Nome e username aparecem no header de todas as páginas, e o endereço do perfil pode ter mudado
+  revalidatePath("/", "layout")
+  return { success: true, message: "Perfil atualizado.", values: { ...input, username: parsed.data.username } }
 }

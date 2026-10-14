@@ -60,7 +60,7 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
       {!profile.isPublic && (
         <p className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
           <Lock className="size-4 shrink-0" />
-          Seu perfil está desativado: só você vê esta página. Ative-o no dashboard para compartilhar.
+          Seu perfil está desativado: só você vê esta página. Ative-o nas configurações para compartilhar.
         </p>
       )}
 
@@ -91,7 +91,7 @@ export default async function ProfilePage({ params }: PageProps<"/u/[username]">
             GitHub
           </a>
           {isOwner && (
-            <Link href="/dashboard#perfil" className={buttonVariants()}>
+            <Link href="/configuracoes#perfil" className={buttonVariants()}>
               <Settings />
               Editar perfil
             </Link>
