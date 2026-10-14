@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { themeScript } from "@/features/theme/theme";
+import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
 
@@ -16,6 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Base para URLs absolutas nos metadados (ex.: imagem de capa no Open Graph)
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "DevShelf",
     template: "%s | DevShelf",
