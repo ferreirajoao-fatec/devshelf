@@ -1,0 +1,61 @@
+name: CI
+
+# Roda em todo PR e nos pushes para develop e main
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: devshelf
+          POSTGRES_PASSWORD: devshelf
+          POSTGRES_DB: devshelf_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devshelf"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql://devshelf:devshelf@localhost:5432/devshelf_test
+      # Valores fictícios só para o build; nenhum segredo real é usado no CI
+      DATABASE_URL: postgresql://devshelf:devshelf@localhost:5432/devshelf_test
+      AUTH_SECRET: ci-only-not-a-secret
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Versão do pnpm vem do campo packageManager do package.json
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm typecheck
+
+      - run: pnpm test:unit
+
+      - run: pnpm test:integration
+
+      - run: pnpm build
