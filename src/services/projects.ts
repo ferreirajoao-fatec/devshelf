@@ -124,7 +124,12 @@ function isUniqueViolation(error: unknown, field: string) {
   )
 }
 
-export async function createProject(userId: string, data: ProjectFormData) {
+// Repositório de origem, quando o projeto é importado do GitHub.
+export type GitHubSource = { repoId: bigint; fullName: string }
+
+export class RepoAlreadyImportedError extends Error {}
+
+export async function createProject(userId: string, data: ProjectFormData, github?: GitHubSource) {
   const technologyIds = await existingTechnologyIds(data.technologyIds)
 
   // Dois cadastros simultâneos podem escolher o mesmo slug; tenta de novo nesse caso.
@@ -136,10 +141,14 @@ export async function createProject(userId: string, data: ProjectFormData) {
           ...toProjectFields(data),
           slug,
           userId,
+          githubRepoId: github?.repoId ?? null,
+          githubRepoFullName: github?.fullName ?? null,
           technologies: { create: technologyIds.map((technologyId) => ({ technologyId })) },
         },
       })
     } catch (error) {
+      // @@unique([userId, githubRepoId]): o mesmo repositório já virou projeto
+      if (github && isUniqueViolation(error, "githubRepoId")) throw new RepoAlreadyImportedError()
       if (attempt < 3 && isUniqueViolation(error, "slug")) continue
       throw error
     }
