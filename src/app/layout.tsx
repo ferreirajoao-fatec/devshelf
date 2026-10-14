@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Nunito } from "next/font/google";
 
 import { themeScript } from "@/features/theme/theme";
 import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Nunito: fonte do texto e dos títulos (arredondada, de leitura tranquila)
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
 });
 
+// Geist Mono: trechos de código no Markdown das descrições
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -31,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // suppressHydrationWarning: o script do tema altera a classe do <html> antes da hidratação
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${nunito.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
