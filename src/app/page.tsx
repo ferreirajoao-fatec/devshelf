@@ -16,9 +16,14 @@ export default async function Home() {
       <p className="max-w-md text-lg text-muted-foreground">
         Cadastre ou importe seus repositórios do GitHub e monte sua estante de projetos.
       </p>
-      <Link href={user ? "/dashboard" : "/login"} className={buttonVariants({ size: "lg" })}>
-        {user ? "Ir para o dashboard" : "Começar com GitHub"}
-      </Link>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Link href={user ? "/dashboard" : "/login"} className={buttonVariants({ size: "lg" })}>
+          {user ? "Ir para o dashboard" : "Começar com GitHub"}
+        </Link>
+        <Link href="/explorar" className={buttonVariants({ size: "lg", variant: "outline" })}>
+          Explorar projetos
+        </Link>
+      </div>
     </main>
   )
 }

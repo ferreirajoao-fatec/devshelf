@@ -11,7 +11,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projetos", label: "Meus Projetos", icon: FolderKanban },
-  { href: "/explorar", label: "Explorar", icon: Compass, soon: true },
+  { href: "/explorar", label: "Explorar", icon: Compass },
 ]
 
 export function isActivePath(pathname: string, href: string) {
