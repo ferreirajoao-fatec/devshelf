@@ -1,12 +1,13 @@
 "use client"
 
-import { ImageOff, Move, RotateCcw, ZoomIn } from "lucide-react"
+import { ImageOff, Loader2, Move, RotateCcw, Trash2, Upload, ZoomIn } from "lucide-react"
 import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+import { COVER_ACCEPT, COVER_TYPES, MAX_COVER_BYTES } from "../cover-upload"
 import { MAX_COVER_ZOOM } from "../schema"
 import { CoverImage, type CoverCrop } from "./cover-image"
 
@@ -28,6 +29,9 @@ export function CoverImageField({ defaultUrl, defaultCrop, invalid, errorId }: C
   const [crop, setCrop] = useState(defaultCrop)
   const [natural, setNatural] = useState<{ width: number; height: number } | null>(null)
   const [failed, setFailed] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string>()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{ pointerX: number; pointerY: number; crop: CoverCrop } | null>(null)
 
@@ -46,6 +50,29 @@ export function CoverImageField({ defaultUrl, defaultCrop, invalid, errorId }: C
     setCrop(DEFAULT_CROP)
     setNatural(null)
     setFailed(false)
+  }
+
+  // Envia o arquivo escolhido para o Blob e usa a URL devolvida como se tivesse sido colada.
+  // O projeto só muda quando o formulário é salvo.
+  async function uploadFile(file: File) {
+    setUploadError(undefined)
+    // Avisos imediatos; o servidor valida de novo (inclusive o conteúdo real do arquivo)
+    if (!(file.type in COVER_TYPES)) return setUploadError("Formato não aceito. Use JPG, PNG, WebP, GIF ou AVIF.")
+    if (file.size > MAX_COVER_BYTES) return setUploadError("A imagem deve ter no máximo 4 MB.")
+
+    setUploading(true)
+    try {
+      const body = new FormData()
+      body.set("file", file)
+      const response = await fetch("/api/uploads/cover", { method: "POST", body })
+      const result = (await response.json().catch(() => ({}))) as { url?: string; error?: string }
+      if (!response.ok || !result.url) throw new Error(result.error ?? "Não foi possível enviar a imagem.")
+      changeUrl(result.url)
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Não foi possível enviar a imagem.")
+    } finally {
+      setUploading(false)
+    }
   }
 
   // Quantos pixels a imagem passa do quadro em cada eixo, com o zoom atual.
@@ -104,18 +131,56 @@ export function CoverImageField({ defaultUrl, defaultCrop, invalid, errorId }: C
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="coverImageUrl">Imagem de capa (URL)</Label>
-        <Input
-          id="coverImageUrl"
-          name="coverImageUrl"
-          type="url"
-          inputMode="url"
-          value={url}
-          onChange={(e) => changeUrl(e.target.value)}
-          placeholder="https://..."
-          aria-invalid={invalid || undefined}
-          aria-describedby={invalid ? errorId : undefined}
-        />
+        <Label htmlFor="coverImageUrl">Imagem de capa</Label>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            id="coverImageUrl"
+            name="coverImageUrl"
+            type="url"
+            inputMode="url"
+            value={url}
+            onChange={(e) => changeUrl(e.target.value)}
+            placeholder="Cole a URL de uma imagem..."
+            aria-invalid={invalid || undefined}
+            aria-describedby={[invalid ? errorId : null, "coverImage-help"].filter(Boolean).join(" ")}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={COVER_ACCEPT}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              e.target.value = "" // permite escolher o mesmo arquivo de novo
+              if (file) void uploadFile(file)
+            }}
+          />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 sm:flex-none"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? <Loader2 className="animate-spin" /> : <Upload />}
+              {uploading ? "Enviando..." : "Enviar do computador"}
+            </Button>
+            {url && (
+              <Button type="button" variant="ghost" size="icon" onClick={() => changeUrl("")} aria-label="Remover capa" title="Remover capa">
+                <Trash2 />
+              </Button>
+            )}
+          </div>
+        </div>
+        <p id="coverImage-help" className="text-xs text-muted-foreground">
+          JPG, PNG, WebP, GIF ou AVIF, até 4 MB. Ou cole a URL de uma imagem já publicada.
+        </p>
+        {uploadError && (
+          <p role="alert" className="text-sm text-destructive">
+            {uploadError}
+          </p>
+        )}
       </div>
 
       {/* Enquadramento enviado no FormData */}
