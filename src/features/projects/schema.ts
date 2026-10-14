@@ -3,6 +3,7 @@ import { z } from "zod"
 import { ProjectStatus, ProjectVisibility } from "@/generated/prisma/enums"
 
 export const MAX_TECHNOLOGIES = 20
+export const MAX_COVER_ZOOM = 3
 
 // Campos opcionais chegam do formulário como "" — normalizamos para undefined.
 const optionalText = (max: number, label: string) =>
@@ -42,6 +43,10 @@ export const projectFormSchema = z
     repositoryUrl: optionalUrl,
     demoUrl: optionalUrl,
     coverImageUrl: optionalUrl,
+    // Enquadramento da capa (ver CoverImage)
+    coverPositionX: z.number().min(0).max(100).default(50),
+    coverPositionY: z.number().min(0).max(100).default(50),
+    coverZoom: z.number().min(1).max(MAX_COVER_ZOOM).default(1),
     startedAt: optionalDate,
     completedAt: optionalDate,
     technologyIds: z
@@ -62,6 +67,8 @@ export function projectFormDataToInput(formData: FormData): ProjectFormInput {
     const value = formData.get(key)
     return typeof value === "string" ? value : ""
   }
+  // Campo ausente vira undefined (usa o padrão do schema); texto inválido vira NaN e é rejeitado.
+  const number = (key: string) => (text(key) ? Number(text(key)) : undefined)
 
   return {
     title: text("title"),
@@ -73,6 +80,9 @@ export function projectFormDataToInput(formData: FormData): ProjectFormInput {
     repositoryUrl: text("repositoryUrl"),
     demoUrl: text("demoUrl"),
     coverImageUrl: text("coverImageUrl"),
+    coverPositionX: number("coverPositionX"),
+    coverPositionY: number("coverPositionY"),
+    coverZoom: number("coverZoom"),
     startedAt: text("startedAt"),
     completedAt: text("completedAt"),
     technologyIds: [...new Set(formData.getAll("technologyIds").filter((v) => typeof v === "string"))],

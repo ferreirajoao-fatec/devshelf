@@ -151,6 +151,7 @@ Em **Meus Projetos** (`/projetos`) o usuário cadastra, edita, filtra por status
 - **Público:** aberto a qualquer pessoa, sem login. **Privado:** só o dono vê (com aviso); para os demais responde 404, e a página recebe `noindex`.
 - A descrição aceita Markdown (com tabelas e listas de tarefas via GFM). HTML bruto não é interpretado e links `javascript:` são removidos, então o conteúdo do usuário não executa scripts.
 - Título, descrição e capa alimentam os metadados de compartilhamento (Open Graph).
+- **Capa com enquadramento:** no formulário, o usuário informa a URL da imagem e escolhe a parte que aparece no quadro 16:9, arrastando a prévia (ou usando as setas do teclado) e ajustando o zoom (1x a 3x). O recorte é salvo como ponto focal e zoom (`coverPositionX`, `coverPositionY`, `coverZoom`) e aplicado por CSS, sem alterar a imagem original. A capa aparece igual, em tamanho menor, nos cards de Meus Projetos.
 
 ### Importação do GitHub
 

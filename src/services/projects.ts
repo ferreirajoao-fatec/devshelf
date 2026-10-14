@@ -99,6 +99,9 @@ function toProjectFields(data: ProjectFormData) {
     repositoryUrl: data.repositoryUrl ?? null,
     demoUrl: data.demoUrl ?? null,
     coverImageUrl: data.coverImageUrl ?? null,
+    coverPositionX: data.coverPositionX,
+    coverPositionY: data.coverPositionY,
+    coverZoom: data.coverZoom,
     startedAt: data.startedAt ? new Date(data.startedAt) : null,
     completedAt: data.completedAt ? new Date(data.completedAt) : null,
   }
