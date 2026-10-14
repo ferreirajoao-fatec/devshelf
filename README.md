@@ -65,6 +65,10 @@ cp .env.example .env
 | `GITHUB_ID` | Client ID do GitHub OAuth App |
 | `GITHUB_SECRET` | Client Secret do GitHub OAuth App |
 
+### Upload de imagens em desenvolvimento
+
+O envio de capas do computador usa o Vercel Blob também no ambiente local. Para ativar, copie o `BLOB_READ_WRITE_TOKEN` do store (Vercel → Storage → seu Blob store → **.env.local**) para o seu `.env`. Sem ele, o botão "Enviar do computador" avisa que o envio não está configurado, e colar a URL de uma imagem continua funcionando.
+
 ## Banco de dados local
 
 ```bash
@@ -162,6 +166,7 @@ Em **Meus Projetos** (`/projetos`) o usuário cadastra, edita, filtra por status
 - **Público:** aberto a qualquer pessoa, sem login. **Privado:** só o dono vê (com aviso); para os demais responde 404, e a página recebe `noindex`.
 - A descrição aceita Markdown (com tabelas e listas de tarefas via GFM). HTML bruto não é interpretado e links `javascript:` são removidos, então o conteúdo do usuário não executa scripts.
 - Título, descrição e capa alimentam os metadados de compartilhamento (Open Graph).
+- **Capa enviada do computador:** botão "Enviar do computador" no formulário (JPG, PNG, WebP, GIF ou AVIF, até 4 MB). O arquivo vai para o **Vercel Blob** pela rota `POST /api/uploads/cover`, que exige login e confere o formato pelos bytes do arquivo (SVG não é aceito). Ao trocar a capa ou excluir o projeto, a imagem antiga é apagada do Blob, só se tiver sido enviada pelo próprio usuário. Também dá para colar a URL de uma imagem já publicada.
 - **Capa com enquadramento:** no formulário, o usuário informa a URL da imagem e escolhe a parte que aparece no quadro 16:9, arrastando a prévia (ou usando as setas do teclado) e ajustando o zoom (1x a 3x). O recorte é salvo como ponto focal e zoom (`coverPositionX`, `coverPositionY`, `coverZoom`) e aplicado por CSS, sem alterar a imagem original. A capa aparece igual, em tamanho menor, nos cards de Meus Projetos.
 
 ### Importação do GitHub
@@ -275,7 +280,8 @@ Aplicação na **Vercel**, banco de produção no **Supabase** (integração do 
    | `GITHUB_ID` / `GITHUB_SECRET` | do OAuth App de produção |
    | `SITE_URL` | opcional, só com domínio próprio |
 
-5. **Redeploy** para as variáveis valerem, e teste o login.
+5. **Imagens de capa:** no projeto da Vercel → **Storage** → **Blob** → crie um store com acesso **público** e conecte ao projeto. A Vercel cria a credencial sozinha.
+6. **Redeploy** para as variáveis valerem, e teste o login.
 
 ### Observações
 
