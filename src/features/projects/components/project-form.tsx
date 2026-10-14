@@ -14,6 +14,7 @@ import { ProjectVisibility } from "@/generated/prisma/enums"
 import type { ProjectFormState } from "../actions"
 import type { ProjectFormInput } from "../schema"
 import { PROJECT_STATUS_LABELS, PROJECT_STATUSES, type ProjectStatus } from "../status"
+import { CoverImageField } from "./cover-image-field"
 import { TechnologyPicker } from "./technology-picker"
 
 const VISIBILITY_LABELS: Record<ProjectVisibility, string> = {
@@ -201,7 +202,6 @@ export function ProjectForm({
             [
               ["repositoryUrl", "Repositório", "https://github.com/usuario/projeto"],
               ["demoUrl", "Demo / deploy", "https://meu-projeto.vercel.app"],
-              ["coverImageUrl", "Imagem de capa (URL)", "https://..."],
             ] as const
           ).map(([field, label, placeholder]) => (
             <div key={field} className="space-y-2">
@@ -218,6 +218,30 @@ export function ProjectForm({
               <FieldError id={`${field}-error`} errors={errors[field]} />
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Capa</CardTitle>
+          <CardDescription>Aparece no topo da página do projeto, no formato 16:9.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <CoverImageField
+            defaultUrl={values.coverImageUrl ?? ""}
+            defaultCrop={{
+              x: values.coverPositionX ?? 50,
+              y: values.coverPositionY ?? 50,
+              zoom: values.coverZoom ?? 1,
+            }}
+            invalid={Boolean(errors.coverImageUrl?.length)}
+            errorId="coverImageUrl-error"
+          />
+          <FieldError id="coverImageUrl-error" errors={errors.coverImageUrl} />
+          <FieldError
+            id="coverCrop-error"
+            errors={errors.coverPositionX ?? errors.coverPositionY ?? errors.coverZoom}
+          />
         </CardContent>
       </Card>
 
