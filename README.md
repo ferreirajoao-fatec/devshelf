@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 8: explorar**.
+🚧 Em desenvolvimento — **Etapa 9: favoritos**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -17,6 +17,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 6 — Importação do GitHub (`/projetos/importar`)
 - [x] Etapa 7 — Perfil público (`/u/[username]`)
 - [x] Etapa 8 — Explorar (`/explorar`, busca e filtros)
+- [x] Etapa 9 — Favoritos (`/favoritos`)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -184,6 +185,15 @@ Em `/projetos/importar` o usuário vê seus repositórios **públicos** (até 30
 - **Filtros** por status e por tecnologia; só aparecem tecnologias usadas em algum projeto público, com a quantidade.
 - Busca, filtros e página ficam na URL (`?q=&tech=&status=&page=`), então dá para compartilhar uma busca. Valores inválidos são ignorados, e uma página além da última redireciona para a última.
 - Cada card mostra o autor, com link para o perfil quando ele está ativo. Um projeto público aparece no Explorar mesmo que o perfil do autor esteja desativado.
+
+## Favoritos
+
+Usuários logados guardam projetos de outras pessoas com a estrela, na página do projeto e nos cards do Explorar e dos perfis. A lista fica em `/favoritos`.
+
+- Só projetos **públicos** de **outros usuários** podem ser favoritados; a regra é verificada no servidor (`src/services/favorites.ts`).
+- A estrela responde na hora (atualização otimista) e volta ao estado anterior se o servidor recusar.
+- A página do projeto mostra quantas pessoas o favoritaram. Visitantes veem "Favoritar", que leva ao login e volta para o projeto.
+- Se um projeto favoritado ficar privado, ele some da lista; desfavoritar continua permitido.
 
 ## Tema
 
