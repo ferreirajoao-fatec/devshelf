@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 6: importação do GitHub**.
+🚧 Em desenvolvimento — **Etapa 7: perfil público**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -15,6 +15,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 4 — CRUD de projetos (Meus Projetos, criar, editar, excluir)
 - [x] Etapa 5 — Página do projeto (`/projeto/[slug]`, Markdown, Open Graph)
 - [x] Etapa 6 — Importação do GitHub (`/projetos/importar`)
+- [x] Etapa 7 — Perfil público (`/u/[username]`)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -163,6 +164,16 @@ Em `/projetos/importar` o usuário vê seus repositórios **públicos** (até 30
 - Ao salvar, o repositório é lido de novo no GitHub para confirmar que é público e do próprio usuário; os dados de origem (`githubRepoId`, `githubRepoFullName`) nunca vêm do navegador.
 - Cada repositório só pode ser importado uma vez por usuário; os já importados aparecem com link para a edição do projeto.
 - Se o token não for mais válido (ex.: acesso revogado no GitHub), a página pede para sair e entrar de novo.
+
+## Perfil público
+
+`/u/[username]` mostra avatar, nome, bio, link do GitHub e os projetos **públicos** do usuário (destaques primeiro).
+
+- O perfil vem **desativado**. O usuário ativa e edita a bio no card "Perfil público" do dashboard (`/dashboard#perfil`).
+- Perfil desativado responde 404 para visitantes e recebe `noindex`; o dono continua vendo a página, com um aviso.
+- Projetos privados nunca aparecem no perfil, nem para o dono: a página mostra exatamente o que os visitantes veem.
+- O `username` vem do login do GitHub e é guardado em minúsculas; o endereço não diferencia maiúsculas.
+- Na página de um projeto, o nome do autor leva ao perfil quando ele está ativo.
 
 ## Tema
 
