@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { FavoriteButton } from "@/features/favorites/components/favorite-button"
 import { cn } from "@/lib/utils"
 import type { UserProject } from "@/services/projects"
 import { formatDate } from "@/utils/format"
@@ -24,6 +25,8 @@ type ProjectCardProps = {
   variant?: "owner" | "public"
   // Quando informado (ex.: Explorar), o rodapé mostra o autor no lugar da data
   author?: ProjectAuthor
+  // Quando informado, mostra o botão de favoritar (só para usuário logado e projeto de outra pessoa)
+  favorite?: { favorited: boolean }
 }
 
 function AuthorLine({ author }: { author: ProjectAuthor }) {
@@ -49,7 +52,7 @@ function AuthorLine({ author }: { author: ProjectAuthor }) {
   )
 }
 
-export function ProjectCard({ project, variant = "owner", author }: ProjectCardProps) {
+export function ProjectCard({ project, variant = "owner", author, favorite }: ProjectCardProps) {
   const isOwnerView = variant === "owner"
   const technologies = project.technologies.map((t) => t.technology)
   const hidden = technologies.length - MAX_VISIBLE_TECHNOLOGIES
@@ -122,6 +125,13 @@ export function ProjectCard({ project, variant = "owner", author }: ProjectCardP
           <span className="text-xs text-muted-foreground">Atualizado em {formatDate(project.updatedAt)}</span>
         )}
         <div className="flex items-center">
+          {favorite && (
+            <FavoriteButton
+              projectId={project.id}
+              projectTitle={project.title}
+              initialFavorited={favorite.favorited}
+            />
+          )}
           {project.repositoryUrl && (
             <a
               href={project.repositoryUrl}

@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input"
 import { exploreHref, MAX_QUERY_LENGTH, parseExploreParams } from "@/features/explore/params"
 import { ProjectCard } from "@/features/projects/components/project-card"
 import { PROJECT_STATUS_LABELS, PROJECT_STATUSES } from "@/features/projects/status"
+import { getCurrentUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
 import { listExploreTechnologies, searchPublicProjects } from "@/services/explore"
+import { getFavoritedProjectIds } from "@/services/favorites"
 
 export const metadata: Metadata = {
   title: "Explorar",
@@ -37,10 +39,14 @@ function FilterChip({ href, active, children }: { href: string; active: boolean;
 
 export default async function ExplorePage({ searchParams }: PageProps<"/explorar">) {
   const params = parseExploreParams(await searchParams)
-  const [{ projects, total, pageCount }, technologies] = await Promise.all([
+  const [{ projects, total, pageCount }, technologies, viewer] = await Promise.all([
     searchPublicProjects(params),
     listExploreTechnologies(),
+    getCurrentUser(),
   ])
+  const favoritedIds = viewer
+    ? await getFavoritedProjectIds(viewer.id, projects.map((p) => p.id))
+    : new Set<string>()
 
   // Página além da última (ex.: link antigo depois de projetos saírem): vai para a última
   if (params.page > pageCount) redirect(exploreHref(params, { page: pageCount }))
@@ -127,7 +133,17 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explorar
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <li key={project.id}>
-              <ProjectCard project={project} variant="public" author={project.user} />
+              <ProjectCard
+                project={project}
+                variant="public"
+                author={project.user}
+                // Só para quem está logado e não é o autor
+                favorite={
+                  viewer && viewer.id !== project.userId
+                    ? { favorited: favoritedIds.has(project.id) }
+                    : undefined
+                }
+              />
             </li>
           ))}
         </ul>
