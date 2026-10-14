@@ -6,6 +6,7 @@ import type { ProjectFormData } from "@/features/projects/schema"
 import { nextAvailableSlug, slugify } from "@/features/projects/slug"
 import { PROJECT_STATUSES, type ProjectStatus } from "@/features/projects/status"
 import { Prisma } from "@/generated/prisma/client"
+import { deleteOwnedCover } from "@/lib/blob"
 import { prisma } from "@/lib/prisma"
 
 export type ProjectStatusCounts = Record<ProjectStatus, number>
@@ -170,12 +171,15 @@ export async function createProject(userId: string, data: ProjectFormData, githu
 // O slug não muda na edição, para não quebrar links já compartilhados.
 // Retorna null se o projeto não existir ou não pertencer ao usuário.
 export async function updateProject(projectId: string, userId: string, data: ProjectFormData) {
-  const owned = await prisma.project.findFirst({ where: { id: projectId, userId }, select: { id: true } })
+  const owned = await prisma.project.findFirst({
+    where: { id: projectId, userId },
+    select: { id: true, coverImageUrl: true },
+  })
   if (!owned) return null
 
   const technologyIds = await existingTechnologyIds(data.technologyIds)
 
-  return prisma.project.update({
+  const updated = await prisma.project.update({
     where: { id: owned.id },
     data: {
       ...toProjectFields(data),
@@ -185,10 +189,18 @@ export async function updateProject(projectId: string, userId: string, data: Pro
       },
     },
   })
+
+  // Capa trocada ou removida: apaga do Blob a imagem antiga, se foi enviada por este usuário
+  if (owned.coverImageUrl !== updated.coverImageUrl) await deleteOwnedCover(owned.coverImageUrl, userId)
+  return updated
 }
 
 // Retorna false se o projeto não existir ou não pertencer ao usuário.
 export async function deleteProject(projectId: string, userId: string) {
+  const owned = await prisma.project.findFirst({ where: { id: projectId, userId }, select: { coverImageUrl: true } })
+  if (!owned) return false
+
   const { count } = await prisma.project.deleteMany({ where: { id: projectId, userId } })
+  if (count > 0) await deleteOwnedCover(owned.coverImageUrl, userId)
   return count > 0
 }
