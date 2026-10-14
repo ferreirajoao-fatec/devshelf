@@ -1,6 +1,7 @@
 "use client"
 
 import { LogOut, Settings, UserRound } from "lucide-react"
+import Link from "next/link"
 import { useTransition } from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,6 +13,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuLinkItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -57,13 +59,12 @@ export function UserMenu({ name, username, image }: UserMenuProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem disabled>
-            <UserRound />
-            Perfil público
-            <Badge variant="outline" className="ml-auto text-[10px]">
-              Em breve
-            </Badge>
-          </DropdownMenuItem>
+          {username && (
+            <DropdownMenuLinkItem render={<Link href={`/u/${username}`} />}>
+              <UserRound />
+              Perfil público
+            </DropdownMenuLinkItem>
+          )}
           <DropdownMenuItem disabled>
             <Settings />
             Configurações

@@ -44,6 +44,15 @@ export async function listUserProjects(userId: string, status?: ProjectStatus) {
 
 export type UserProject = Awaited<ReturnType<typeof listUserProjects>>[number]
 
+// Projetos públicos de um usuário, para o perfil /u/[username]. Destaques primeiro.
+export async function listPublicProjectsOfUser(userId: string) {
+  return prisma.project.findMany({
+    where: { userId, visibility: "PUBLIC" },
+    include: technologiesInclude,
+    orderBy: [{ featured: "desc" }, { updatedAt: "desc" }],
+  })
+}
+
 // Retorna o projeto apenas se pertencer ao usuário; caso contrário, null
 // (quem não é dono não consegue nem saber se o projeto existe).
 export async function getOwnedProject(projectId: string, userId: string) {

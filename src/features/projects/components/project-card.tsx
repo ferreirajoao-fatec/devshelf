@@ -15,7 +15,14 @@ import { StatusBadge } from "./status-badge"
 
 const MAX_VISIBLE_TECHNOLOGIES = 4
 
-export function ProjectCard({ project }: { project: UserProject }) {
+type ProjectCardProps = {
+  project: UserProject
+  // "owner": Meus Projetos (visibilidade, editar, excluir). "public": perfil e listagens abertas.
+  variant?: "owner" | "public"
+}
+
+export function ProjectCard({ project, variant = "owner" }: ProjectCardProps) {
+  const isOwnerView = variant === "owner"
   const technologies = project.technologies.map((t) => t.technology)
   const hidden = technologies.length - MAX_VISIBLE_TECHNOLOGIES
   const isPublic = project.visibility === "PUBLIC"
@@ -38,10 +45,12 @@ export function ProjectCard({ project }: { project: UserProject }) {
       <CardHeader>
         <div className="flex flex-wrap items-center gap-1.5">
           <StatusBadge status={project.status} />
-          <Badge variant="secondary" className="gap-1">
-            {isPublic ? <Globe /> : <Lock />}
-            {isPublic ? "Público" : "Privado"}
-          </Badge>
+          {isOwnerView && (
+            <Badge variant="secondary" className="gap-1">
+              {isPublic ? <Globe /> : <Lock />}
+              {isPublic ? "Público" : "Privado"}
+            </Badge>
+          )}
           {project.featured && (
             <Badge variant="secondary" className="gap-1">
               <Star />
@@ -105,15 +114,19 @@ export function ProjectCard({ project }: { project: UserProject }) {
               <ExternalLink />
             </a>
           )}
-          <Link
-            href={`/projetos/${project.id}/editar`}
-            className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
-            aria-label={`Editar ${project.title}`}
-            title="Editar"
-          >
-            <Pencil />
-          </Link>
-          <DeleteProjectButton projectId={project.id} title={project.title} />
+          {isOwnerView && (
+            <>
+              <Link
+                href={`/projetos/${project.id}/editar`}
+                className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                aria-label={`Editar ${project.title}`}
+                title="Editar"
+              >
+                <Pencil />
+              </Link>
+              <DeleteProjectButton projectId={project.id} title={project.title} />
+            </>
+          )}
         </div>
       </CardFooter>
     </Card>

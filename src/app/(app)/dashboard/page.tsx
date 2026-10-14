@@ -5,6 +5,7 @@ import Link from "next/link"
 import { GitHubIcon } from "@/components/icons/github-icon"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ProfileSettingsCard } from "@/features/profile/components/profile-settings-card"
 import {
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_LABELS,
@@ -12,6 +13,7 @@ import {
 } from "@/features/projects/status"
 import { requireUser } from "@/lib/session"
 import { cn } from "@/lib/utils"
+import { getProfileSettings } from "@/services/profiles"
 import { getProjectStatusCounts } from "@/services/projects"
 
 export const metadata: Metadata = {
@@ -22,7 +24,7 @@ export default async function DashboardPage() {
   const user = await requireUser()
   const firstName = (user.name ?? user.username ?? "").split(" ")[0]
 
-  const counts = await getProjectStatusCounts(user.id)
+  const [counts, profile] = await Promise.all([getProjectStatusCounts(user.id), getProfileSettings(user.id)])
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
 
   return (
@@ -65,6 +67,16 @@ export default async function DashboardPage() {
           ))}
         </div>
       </section>
+
+      {profile?.username && (
+        <section id="perfil" className="scroll-mt-20">
+          <ProfileSettingsCard
+            username={profile.username}
+            defaultBio={profile.bio ?? ""}
+            defaultIsPublic={profile.isPublic}
+          />
+        </section>
+      )}
 
       {total === 0 && (
         <Card className="border-dashed">
