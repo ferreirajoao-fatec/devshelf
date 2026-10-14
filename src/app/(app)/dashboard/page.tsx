@@ -3,8 +3,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { GitHubIcon } from "@/components/icons/github-icon"
-import { Badge } from "@/components/ui/badge"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   PROJECT_STATUS_COLORS,
@@ -85,12 +84,11 @@ export default async function DashboardPage() {
                 <Plus />
                 Novo projeto
               </Link>
-              <Button variant="outline" disabled>
+              <Link href="/projetos/importar" className={buttonVariants({ variant: "outline" })}>
                 <GitHubIcon />
                 Importar do GitHub
-              </Button>
+              </Link>
             </div>
-            <Badge variant="secondary">Importação do GitHub chega em uma próxima etapa</Badge>
           </CardContent>
         </Card>
       )}

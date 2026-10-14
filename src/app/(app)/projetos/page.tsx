@@ -2,6 +2,7 @@ import { FolderPlus, Plus } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { GitHubIcon } from "@/components/icons/github-icon"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProjectCard } from "@/features/projects/components/project-card"
@@ -43,10 +44,16 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/projeto
           <h1 className="text-2xl font-semibold tracking-tight">Meus Projetos</h1>
           <p className="text-muted-foreground">Cadastre, organize e edite os projetos da sua estante.</p>
         </div>
-        <Link href="/projetos/novo" className={buttonVariants()}>
-          <Plus />
-          Novo projeto
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link href="/projetos/importar" className={buttonVariants({ variant: "outline" })}>
+            <GitHubIcon />
+            Importar do GitHub
+          </Link>
+          <Link href="/projetos/novo" className={buttonVariants()}>
+            <Plus />
+            Novo projeto
+          </Link>
+        </div>
       </div>
 
       <nav aria-label="Filtrar por status" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
