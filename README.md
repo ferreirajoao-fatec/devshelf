@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 12: testes**.
+🚧 Em desenvolvimento — **Etapa 13: deploy**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -258,7 +258,30 @@ pnpm remove cn
 
 ## Deploy
 
-Aplicação hospedada na Vercel; banco de produção em Neon ou Supabase.
+Aplicação na **Vercel**, banco de produção no **Supabase** (integração do Marketplace da Vercel).
+
+### Passo a passo
+
+1. **Projeto na Vercel:** em [vercel.com/new](https://vercel.com/new), importe este repositório. O framework (Next.js) é detectado sozinho. A Vercel usa o script `vercel-build` (`prisma migrate deploy && prisma db seed && next build`): a cada deploy aplica as migrations pendentes e atualiza as tecnologias iniciais.
+2. **Banco:** no projeto da Vercel → **Storage** → **Supabase** → crie o banco e conecte ao projeto. A integração cria `POSTGRES_URL` (pooler, usado pelo app) e `POSTGRES_URL_NON_POOLING` (conexão direta, usada pelas migrations); o código já lê essas variáveis (`src/lib/database-url.ts`). **Não** crie `DATABASE_URL` na Vercel.
+3. **OAuth App de produção:** no GitHub → Settings → Developer settings → OAuth Apps → New OAuth App, com:
+   - **Homepage URL:** `https://<seu-projeto>.vercel.app`
+   - **Authorization callback URL:** `https://<seu-projeto>.vercel.app/api/auth/callback/github`
+4. **Variáveis de ambiente** (projeto da Vercel → Settings → Environment Variables, ambiente *Production*):
+
+   | Variável | Valor |
+   |---|---|
+   | `AUTH_SECRET` | um segredo novo (`npx auth secret`), diferente do local |
+   | `GITHUB_ID` / `GITHUB_SECRET` | do OAuth App de produção |
+   | `SITE_URL` | opcional, só com domínio próprio |
+
+5. **Redeploy** para as variáveis valerem, e teste o login.
+
+### Observações
+
+- O SSL do Supabase usa `uselibpqcompat=true` (conexão criptografada, mesma semântica do `psql`); ver `src/lib/database-url.ts`.
+- `robots.txt` bloqueia as páginas privadas e `sitemap.xml` lista projetos públicos e perfis ativos, com a URL de produção da Vercel (`VERCEL_PROJECT_PRODUCTION_URL`) ou `SITE_URL`.
+- Deploys de preview (branches e PRs) usam o mesmo banco se as variáveis do Supabase estiverem no ambiente *Preview*. Para isolar, conecte o Supabase só ao ambiente *Production*.
 
 ## Roadmap
 

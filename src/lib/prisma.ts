@@ -3,9 +3,10 @@ import "server-only"
 import { PrismaPg } from "@prisma/adapter-pg"
 
 import { PrismaClient } from "@/generated/prisma/client"
+import { runtimeDatabaseUrl } from "@/lib/database-url"
 
 function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+  const adapter = new PrismaPg({ connectionString: runtimeDatabaseUrl() })
   return new PrismaClient({ adapter })
 }
 
