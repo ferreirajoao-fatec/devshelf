@@ -8,7 +8,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <AppHeader user={user} />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8">{children}</div>
+      <main id="conteudo" className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8">
+        {children}
+      </main>
     </>
   )
 }
