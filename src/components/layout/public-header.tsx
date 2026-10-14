@@ -19,6 +19,9 @@ export async function PublicHeader() {
           DevShelf
         </Link>
         <div className="ml-auto flex items-center gap-1">
+          <Link href="/explorar" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+            Explorar
+          </Link>
           <ThemeToggle />
           {user ? (
             <>

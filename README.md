@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 7: perfil público**.
+🚧 Em desenvolvimento — **Etapa 8: explorar**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -16,6 +16,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 5 — Página do projeto (`/projeto/[slug]`, Markdown, Open Graph)
 - [x] Etapa 6 — Importação do GitHub (`/projetos/importar`)
 - [x] Etapa 7 — Perfil público (`/u/[username]`)
+- [x] Etapa 8 — Explorar (`/explorar`, busca e filtros)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -174,6 +175,15 @@ Em `/projetos/importar` o usuário vê seus repositórios **públicos** (até 30
 - Projetos privados nunca aparecem no perfil, nem para o dono: a página mostra exatamente o que os visitantes veem.
 - O `username` vem do login do GitHub e é guardado em minúsculas; o endereço não diferencia maiúsculas.
 - Na página de um projeto, o nome do autor leva ao perfil quando ele está ativo.
+
+## Explorar
+
+`/explorar` lista os projetos **públicos** de todos os usuários, do mais recentemente atualizado ao mais antigo, 24 por página. Aberto a visitantes, sem login.
+
+- **Busca** por título, descrição curta ou nome de tecnologia (sem diferenciar maiúsculas).
+- **Filtros** por status e por tecnologia; só aparecem tecnologias usadas em algum projeto público, com a quantidade.
+- Busca, filtros e página ficam na URL (`?q=&tech=&status=&page=`), então dá para compartilhar uma busca. Valores inválidos são ignorados, e uma página além da última redireciona para a última.
+- Cada card mostra o autor, com link para o perfil quando ele está ativo. Um projeto público aparece no Explorar mesmo que o perfil do autor esteja desativado.
 
 ## Tema
 
