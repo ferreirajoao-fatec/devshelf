@@ -138,7 +138,14 @@ export default async function ProjectPage({ params }: PageProps<"/projeto/[slug]
                 <AvatarFallback>{authorName.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <p className="truncate font-medium">{authorName}</p>
+                {/* Link só quando o perfil está ativo; senão levaria a um 404 */}
+                {author.isPublic && author.username ? (
+                  <Link href={`/u/${author.username}`} className="block truncate font-medium hover:underline">
+                    {authorName}
+                  </Link>
+                ) : (
+                  <p className="truncate font-medium">{authorName}</p>
+                )}
                 {author.username && (
                   <p className="truncate text-sm text-muted-foreground">@{author.username}</p>
                 )}
