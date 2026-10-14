@@ -2,6 +2,7 @@ import { ExternalLink, Globe, Lock, Pencil, Star } from "lucide-react"
 import Link from "next/link"
 
 import { GitHubIcon } from "@/components/icons/github-icon"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,13 +16,40 @@ import { StatusBadge } from "./status-badge"
 
 const MAX_VISIBLE_TECHNOLOGIES = 4
 
+type ProjectAuthor = { name: string | null; username: string | null; image: string | null; isPublic: boolean }
+
 type ProjectCardProps = {
   project: UserProject
   // "owner": Meus Projetos (visibilidade, editar, excluir). "public": perfil e listagens abertas.
   variant?: "owner" | "public"
+  // Quando informado (ex.: Explorar), o rodapé mostra o autor no lugar da data
+  author?: ProjectAuthor
 }
 
-export function ProjectCard({ project, variant = "owner" }: ProjectCardProps) {
+function AuthorLine({ author }: { author: ProjectAuthor }) {
+  const name = author.name ?? author.username ?? "Autor"
+  const content = (
+    <>
+      <Avatar size="sm">
+        {author.image && <AvatarImage src={author.image} alt="" />}
+        <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <span className="truncate">{name}</span>
+    </>
+  )
+  const className = "flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
+
+  // Link só para perfil ativo; senão levaria a um 404
+  return author.isPublic && author.username ? (
+    <Link href={`/u/${author.username}`} className={cn(className, "hover:text-foreground hover:underline")}>
+      {content}
+    </Link>
+  ) : (
+    <span className={className}>{content}</span>
+  )
+}
+
+export function ProjectCard({ project, variant = "owner", author }: ProjectCardProps) {
   const isOwnerView = variant === "owner"
   const technologies = project.technologies.map((t) => t.technology)
   const hidden = technologies.length - MAX_VISIBLE_TECHNOLOGIES
@@ -88,7 +116,11 @@ export function ProjectCard({ project, variant = "owner" }: ProjectCardProps) {
       </CardContent>
 
       <CardFooter className="justify-between gap-2 border-t pt-3">
-        <span className="text-xs text-muted-foreground">Atualizado em {formatDate(project.updatedAt)}</span>
+        {author ? (
+          <AuthorLine author={author} />
+        ) : (
+          <span className="text-xs text-muted-foreground">Atualizado em {formatDate(project.updatedAt)}</span>
+        )}
         <div className="flex items-center">
           {project.repositoryUrl && (
             <a
