@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CoverImage } from "@/features/projects/components/cover-image"
 import { StatusBadge } from "@/features/projects/components/status-badge"
 import { getCurrentUser } from "@/lib/session"
 import { getViewableProjectBySlug } from "@/services/projects"
@@ -62,12 +63,10 @@ export default async function ProjectPage({ params }: PageProps<"/projeto/[slug]
       )}
 
       {project.coverImageUrl && (
-        // URL externa informada pelo usuário: <img> evita liberar qualquer host no next/image
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <CoverImage
           src={project.coverImageUrl}
           alt={`Capa do projeto ${project.title}`}
-          className="aspect-video w-full rounded-xl border bg-muted object-cover"
+          crop={{ x: project.coverPositionX, y: project.coverPositionY, zoom: project.coverZoom }}
         />
       )}
 

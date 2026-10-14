@@ -5,9 +5,11 @@ import { GitHubIcon } from "@/components/icons/github-icon"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import type { UserProject } from "@/services/projects"
 import { formatDate } from "@/utils/format"
 
+import { CoverImage } from "./cover-image"
 import { DeleteProjectButton } from "./delete-project-button"
 import { StatusBadge } from "./status-badge"
 
@@ -19,7 +21,20 @@ export function ProjectCard({ project }: { project: UserProject }) {
   const isPublic = project.visibility === "PUBLIC"
 
   return (
-    <Card className="h-full">
+    <Card className={cn("h-full", project.coverImageUrl && "pt-0")}>
+      {project.coverImageUrl && (
+        // Mesmo enquadramento da página do projeto, em tamanho menor.
+        // Fora da ordem de tabulação: o título logo abaixo já leva à mesma página.
+        <Link href={`/projeto/${project.slug}`} tabIndex={-1} aria-hidden="true">
+          <CoverImage
+            src={project.coverImageUrl}
+            alt=""
+            crop={{ x: project.coverPositionX, y: project.coverPositionY, zoom: project.coverZoom }}
+            className="rounded-none border-0 border-b"
+            imgProps={{ loading: "lazy" }}
+          />
+        </Link>
+      )}
       <CardHeader>
         <div className="flex flex-wrap items-center gap-1.5">
           <StatusBadge status={project.status} />
