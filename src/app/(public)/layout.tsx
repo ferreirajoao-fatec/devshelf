@@ -5,7 +5,9 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <PublicHeader />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8">{children}</div>
+      <main id="conteudo" className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8">
+        {children}
+      </main>
     </>
   )
 }

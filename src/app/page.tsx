@@ -8,7 +8,7 @@ export default async function Home() {
   const user = await getCurrentUser()
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-24 text-center">
+    <main id="conteudo" className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-24 text-center">
       <Library className="size-12" />
       <h1 className="max-w-xl text-4xl font-semibold tracking-tight">
         Organize e apresente tudo o que você já desenvolveu.

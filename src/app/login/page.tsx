@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   if (await getCurrentUser()) redirect(redirectTo)
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-16">
+    <main id="conteudo" className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-8 text-center shadow-sm">
         <div className="space-y-2">
           <Library className="mx-auto size-10" />
