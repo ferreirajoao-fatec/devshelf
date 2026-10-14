@@ -6,7 +6,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 
 ## Status do projeto
 
-🚧 Em desenvolvimento — **Etapa 10: configurações**.
+🚧 Em desenvolvimento — **Etapa 11: refinamentos**.
 
 - [x] Etapa 0 — Ambiente
 - [x] Etapa 1 — Autenticação com GitHub
@@ -19,6 +19,7 @@ DevShelf é um "fichário digital" de projetos para desenvolvedores: faça login
 - [x] Etapa 8 — Explorar (`/explorar`, busca e filtros)
 - [x] Etapa 9 — Favoritos (`/favoritos`)
 - [x] Etapa 10 — Configurações (`/configuracoes`)
+- [x] Etapa 11 — Refinamentos (404, erros, carregamento, acessibilidade)
 - [ ] Próximas etapas — ver [Roadmap](#roadmap)
 
 ## Objetivo
@@ -207,6 +208,14 @@ Sobre o username:
 
 - Começa igual ao login do GitHub e pode ser trocado: letras, números e hífens, até 39 caracteres, sempre em minúsculas. Trocar muda o endereço do perfil, e links antigos deixam de funcionar.
 - É único. Se alguém já adotou o login do GitHub de uma pessoa nova, ela entra com uma variação livre (`login-2`...) em vez de o cadastro falhar (`createUser` em `src/lib/auth.ts`).
+
+## Páginas de erro e carregamento
+
+- **404 em português** (`not-found.tsx` na raiz e nos grupos `(app)` e `(public)`). Projeto privado, perfil desativado e endereço inexistente mostram a mesma página, para não revelar o que existe.
+- **Erro inesperado** (`error.tsx`): mensagem amigável, botão "Tentar de novo" (`retry()` do Next 16) e código do erro para cruzar com o log. `global-error.tsx` cobre falhas no próprio layout raiz.
+- **Carregamento** (`loading.tsx`): esqueleto nas páginas privadas e no Explorar. As páginas `/projeto/[slug]` e `/u/[username]` ficam sem esqueleto de propósito: com streaming o Next já enviaria `200` antes do `notFound()`, e elas deixariam de responder `404`.
+- **Capa indisponível:** se a URL da imagem falhar, o quadro mostra um aviso em vez do ícone de imagem quebrada.
+- **Acessibilidade:** link "Pular para o conteúdo" no primeiro Tab e conteúdo dentro de `<main id="conteudo">`.
 
 ## Tema
 
