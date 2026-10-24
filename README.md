@@ -279,6 +279,7 @@ Aplicação na **Vercel**, banco de produção no **Supabase** (integração do 
    | `AUTH_SECRET` | um segredo novo (`npx auth secret`), diferente do local |
    | `GITHUB_ID` / `GITHUB_SECRET` | do OAuth App de produção |
    | `SITE_URL` | opcional, só com domínio próprio |
+   | `CRON_SECRET` | um segredo aleatório (ex.: `openssl rand -hex 32`), usado pelo cron de keep-alive |
 
 5. **Imagens de capa:** no projeto da Vercel → **Storage** → **Blob** → crie um store com acesso **público** e conecte ao projeto. A Vercel cria a credencial sozinha.
 6. **Redeploy** para as variáveis valerem, e teste o login.
@@ -287,6 +288,7 @@ Aplicação na **Vercel**, banco de produção no **Supabase** (integração do 
 
 - O SSL do Supabase usa `uselibpqcompat=true` (conexão criptografada, mesma semântica do `psql`); ver `src/lib/database-url.ts`.
 - `robots.txt` bloqueia as páginas privadas e `sitemap.xml` lista projetos públicos e perfis ativos, com a URL de produção da Vercel (`VERCEL_PROJECT_PRODUCTION_URL`) ou `SITE_URL`.
+- **Keep-alive do Supabase:** no plano gratuito, o Supabase pausa o banco após ~7 dias sem atividade. Um Vercel Cron (`vercel.json`) chama `GET /api/cron/keep-alive` todo dia às 12h UTC, que faz um `SELECT 1`. A rota só responde com o header `Authorization: Bearer <CRON_SECRET>`, enviado automaticamente pela Vercel. Sem `CRON_SECRET`, ela responde 503 e o banco não é consultado.
 - Deploys de preview (branches e PRs) usam o mesmo banco se as variáveis do Supabase estiverem no ambiente *Preview*. Para isolar, conecte o Supabase só ao ambiente *Production*.
 
 ## Roadmap
